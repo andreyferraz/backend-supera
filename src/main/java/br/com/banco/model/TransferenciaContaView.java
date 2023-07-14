@@ -15,11 +15,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "transferencia")
-public class Transferencia {
+@Table(name = "conta_transferencia_view")
+public class TransferenciaContaView {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_conta")
+    private Long idConta;
+
+    @Column(name = "nome_responsavel")
+    private String nomeResponsavel;
+
+    @Column(name = "id")
+    private Long idTransferencia;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_transferencia")
@@ -34,8 +40,4 @@ public class Transferencia {
     @Column(name = "nome_operador_transacao")
     private String nomeOperadorTransacao;
 
-    @ManyToOne
-    @JoinColumn(name = "conta_id")
-    private Conta conta;
-    
 }

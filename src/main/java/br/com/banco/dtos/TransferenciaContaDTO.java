@@ -12,11 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransferenciaDTO {
-    private Long id;
+public class TransferenciaContaDTO {
+    private Long idConta;
+    private String nomeResponsavel;
+    private Long idTransferencia;
     private Date dataTransferencia;
     private BigDecimal valor;
     private String tipo;
     private String nomeOperadorTransacao;
-    private ContaDTO conta;
 }
