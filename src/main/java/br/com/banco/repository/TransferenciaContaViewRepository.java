@@ -26,29 +26,4 @@ public interface TransferenciaContaViewRepository extends JpaRepository<Transfer
             Date dataInicio, Date dataFim, List<String> tiposTransacao, String nomeOperador
     );
 
-    default List<TransferenciaContaView> findByDataTransferenciaAndTipoInOrAll(Date dataInicio, Date dataFim, List<String> tiposTransacao) {
-        if (dataInicio == null || dataFim == null) {
-            return findAll();
-        } else {
-            return findByDataTransferenciaBetweenAndTipoIn(dataInicio, dataFim, tiposTransacao);
-        }
-    }
-
-    default List<TransferenciaContaView> findByNomeOperadorTransacaoOrEmpty(String nomeOperador) {
-        if (nomeOperador == null) {
-            return List.of();
-        } else {
-            return findByNomeOperadorTransacaoIgnoreCase(nomeOperador);
-        }
-    }
-
-    default List<TransferenciaContaView> findByDataTransferenciaAndTipoInAndNomeOperadorTransacaoOrAll(Date dataInicio, Date dataFim, List<String> tiposTransacao, String nomeOperador) {
-        if (dataInicio == null || dataFim == null) {
-            return findByNomeOperadorTransacaoOrEmpty(nomeOperador);
-        } else if (nomeOperador == null) {
-            return findByDataTransferenciaBetweenAndTipoIn(dataInicio, dataFim, tiposTransacao);
-        } else {
-            return findByDataTransferenciaBetweenAndTipoInAndNomeOperadorTransacaoIgnoreCase(dataInicio, dataFim, tiposTransacao, nomeOperador);
-        }
-    }
 }
