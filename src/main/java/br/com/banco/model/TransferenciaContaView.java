@@ -1,6 +1,7 @@
 package br.com.banco.model;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 
 import javax.persistence.*;
@@ -17,13 +18,14 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "conta_transferencia_view")
 public class TransferenciaContaView {
-    @Id
+    
     @Column(name = "id_conta")
-    private Long idConta;
+    private Integer idConta;
 
     @Column(name = "nome_responsavel")
     private String nomeResponsavel;
-
+    
+    @Id
     @Column(name = "id")
     private Long idTransferencia;
 
