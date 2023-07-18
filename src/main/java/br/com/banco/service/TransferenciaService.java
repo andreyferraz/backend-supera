@@ -55,61 +55,42 @@ public class TransferenciaService {
         return saldoTotal;
     }
 
-    public List<TransferenciaContaDTO> obterTransacoesPorOperador(String nomeOperador) {
-        List<TransferenciaContaView> transferencias = transferenciaContaViewRepository
-                .findByNomeOperadorTransacao(nomeOperador);
-
-        BigDecimal saldoTotalPorOperador = BigDecimal.ZERO;
-        List<TransferenciaContaDTO> transacoesPorOperador = new ArrayList<>();
-
-        boolean operadorEncontrado = false;
-
-        for (TransferenciaContaView transferencia : transferencias) {
-            if (nomeOperador.equalsIgnoreCase(transferencia.getNomeOperadorTransacao())) {
-                TransferenciaContaDTO transferenciaDTO = converterParaDTO(transferencia);
-                transacoesPorOperador.add(transferenciaDTO);
-
-                BigDecimal valor = transferencia.getValor();
-                if ("DEPOSITO".equalsIgnoreCase(transferencia.getTipo())
-                        || "TRANSFERENCIA".equalsIgnoreCase(transferencia.getTipo())) {
-                    saldoTotalPorOperador = saldoTotalPorOperador.add(valor);
-                } else if ("SAQUE".equalsIgnoreCase(transferencia.getTipo())) {
-                    saldoTotalPorOperador = saldoTotalPorOperador.subtract(valor);
-                }
-                operadorEncontrado = true;
-            }
-        }
-        if (!operadorEncontrado) {
-            throw new OperadorNotFoundException("Não existem transações para esse operador");
-        }
-        return transacoesPorOperador;
-    }
-
     public List<TransferenciaContaDTO> obterTransacoesPorPeriodoEOperador(
             @RequestParam(required = false) Date dataInicio,
             @RequestParam(required = false) Date dataFim,
             @RequestParam(required = false) String nomeOperador) {
         List<String> tiposTransacao = Arrays.asList("SAQUE", "DEPOSITO", "TRANSFERENCIA");
-        List<TransferenciaContaView> transferencias;
+
+        if(dataInicio == null && dataFim == null){
+            TransferenciaContaView primeiraTransacao = transferenciaContaViewRepository.findFirstByOrderByDataTransferenciaAsc();
+            if(primeiraTransacao != null){
+                dataInicio = primeiraTransacao.getDataTransferencia();
+            }
+            dataFim = new Date();
+        }
 
         if (dataInicio != null && dataFim != null) {
             if (nomeOperador != null && !nomeOperador.isEmpty()) {
-                transferencias = transferenciaContaViewRepository
+                return transferenciaContaViewRepository
                         .findByDataTransferenciaBetweenAndTipoInAndNomeOperadorTransacaoIgnoreCase(
-                                dataInicio, dataFim, tiposTransacao, nomeOperador);
+                                dataInicio, dataFim, tiposTransacao, nomeOperador).stream()
+                               .map(this::converterParaDTO)
+                               .collect(Collectors.toList());
             } else {
-                transferencias = transferenciaContaViewRepository.findByDataTransferenciaBetweenAndTipoIn(
-                        dataInicio, dataFim, tiposTransacao);
+                return transferenciaContaViewRepository.findByDataTransferenciaBetweenAndTipoIn(
+                        dataInicio, dataFim, tiposTransacao).stream()
+                        .map(this::converterParaDTO)
+                        .collect(Collectors.toList());
             }
         } else if (nomeOperador != null && !nomeOperador.isEmpty()) {
-            transferencias = transferenciaContaViewRepository.findByNomeOperadorTransacaoIgnoreCase(nomeOperador);
+            return transferenciaContaViewRepository.findByNomeOperadorTransacaoIgnoreCase(nomeOperador).stream()
+            .map(this::converterParaDTO)
+            .collect(Collectors.toList());
         } else {
-            transferencias = transferenciaContaViewRepository.findAll();
+            return transferenciaContaViewRepository.findAll().stream()
+            .map(this::converterParaDTO)
+            .collect(Collectors.toList());
         }
-
-        return transferencias.stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
     }
 
     public BigDecimal calcularValorTotalPorPeriodo(Date dataInicio, Date dataFim) {
